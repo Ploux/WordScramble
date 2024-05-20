@@ -17,6 +17,8 @@ struct ContentView: View {
     @State private var errorMessage = ""
     @State private var showingError = false
     
+    @State private var score = 0
+    
     var body: some View {
         NavigationStack {
             List {
@@ -25,6 +27,10 @@ struct ContentView: View {
                         .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
 
+                }
+
+                Section {
+                    Text("Score: \(score)")
                 }
                 
                 Section {
@@ -43,6 +49,13 @@ struct ContentView: View {
                 Button("OK") { }
             } message: {
                 Text(errorMessage)
+            }
+            
+            // toolbar button to start a new game
+            .toolbar {
+                Button("New Game") {
+                    startGame()
+                }
             }
 
         }
@@ -91,6 +104,19 @@ struct ContentView: View {
             return
         }
         
+        guard tooShort(word: answer) else {
+            wordError(title: "Word too short", message: "This isn't Scrabble!")
+            return
+        }
+        
+        // check if word is same as root
+        guard answer != rootWord else {
+            wordError(title: "Word same as root", message: "Obviously!")
+            return
+        }
+        
+        // score the word
+        score += answer.count
         
         withAnimation {
             usedWords.insert(answer, at: 0)
@@ -114,6 +140,10 @@ struct ContentView: View {
         }
         
         return true
+    }
+    
+    func tooShort(word: String) -> Bool {
+        word.count >= 3
     }
     
     func isReal(word: String) -> Bool {
